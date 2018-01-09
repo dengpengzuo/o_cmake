@@ -13,6 +13,7 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src/proc
         ${CMAKE_CURRENT_SOURCE_DIR}/objs
         ${CMAKE_CURRENT_SOURCE_DIR}/src/http
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/http/v2/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/http/modules
         ${CMAKE_CURRENT_SOURCE_DIR}/src/mail
 )
@@ -80,10 +81,11 @@ set(SOURCE_FILES
         src/os/unix/ngx_linux_init.c
         src/event/modules/ngx_epoll_module.c
         src/os/unix/ngx_linux_sendfile_chain.c
+        src/os/unix/ngx_linux_aio_read.c
         src/core/ngx_dso_module.c
         src/proc/ngx_proc.c
-        src/event/ngx_event_openssl.c
-        src/event/ngx_event_openssl_stapling.c
+#        src/event/ngx_event_openssl.c
+#        src/event/ngx_event_openssl_stapling.c
         src/core/ngx_regex.c
         src/http/ngx_http.c
         src/http/ngx_http_core_module.c
@@ -100,15 +102,24 @@ set(SOURCE_FILES
         src/http/ngx_http_upstream.c
         src/http/ngx_http_upstream_round_robin.c
         src/http/ngx_http_parse_time.c
+        src/http/ngx_http_file_cache.c
+        src/http/ngx_http_postpone_filter_module.c
+        src/http/ngx_http_upstream_check_module.c
+
+        src/http/v2/ngx_http_v2.c
+       	src/http/v2/ngx_http_v2_table.c
+       	src/http/v2/ngx_http_v2_huff_decode.c
+       	src/http/v2/ngx_http_v2_huff_encode.c
+       	src/http/v2/ngx_http_v2_module.c
+       	src/http/v2/ngx_http_v2_filter_module.c
+
         src/http/modules/ngx_http_static_module.c
         src/http/modules/ngx_http_index_module.c
         src/http/modules/ngx_http_chunked_filter_module.c
         src/http/modules/ngx_http_range_filter_module.c
         src/http/modules/ngx_http_headers_filter_module.c
         src/http/modules/ngx_http_not_modified_filter_module.c
-        src/http/ngx_http_file_cache.c
         src/http/modules/ngx_http_gzip_filter_module.c
-        src/http/ngx_http_postpone_filter_module.c
         src/http/modules/ngx_http_ssi_filter_module.c
         src/http/modules/ngx_http_charset_filter_module.c
         src/http/modules/ngx_http_userid_filter_module.c
@@ -125,7 +136,7 @@ set(SOURCE_FILES
         src/http/modules/ngx_http_split_clients_module.c
         src/http/modules/ngx_http_referer_module.c
         src/http/modules/ngx_http_rewrite_module.c
-        src/http/modules/ngx_http_ssl_module.c
+#        src/http/modules/ngx_http_ssl_module.c
         src/http/modules/ngx_http_proxy_module.c
         src/http/modules/ngx_http_fastcgi_module.c
         src/http/modules/ngx_http_uwsgi_module.c
@@ -137,17 +148,17 @@ set(SOURCE_FILES
         src/http/modules/ngx_http_upstream_hash_module.c
         src/http/modules/ngx_http_upstream_ip_hash_module.c
         src/http/modules/ngx_http_upstream_consistent_hash_module.c
-        src/http/ngx_http_upstream_check_module.c
         src/http/modules/ngx_http_upstream_least_conn_module.c
         src/http/modules/ngx_http_upstream_session_sticky_module.c
         src/http/modules/ngx_http_reqstat_module.c
         src/http/modules/ngx_http_upstream_keepalive_module.c
         src/http/modules/ngx_http_upstream_dynamic_module.c
         src/http/modules/ngx_http_stub_status_module.c
+
         objs/ngx_modules.c
         )
 
 add_executable(nginx ${SOURCE_FILES})
-target_link_libraries(nginx pthread dl crypt pcre ssl crypto z jemalloc)
+target_link_libraries(nginx pthread dl crypt pcre #[[ssl]] crypto z jemalloc)
 set_target_properties(nginx PROPERTIES LINKER_LANGUAGE "C")
 set_target_properties(nginx PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")

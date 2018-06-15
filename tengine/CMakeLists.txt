@@ -3,7 +3,7 @@ project(tengine.git)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/objs)
 set(CMAKE_C_FLAGS "-pipe -W -Wall -Wpointer-arith -Wno-unused-parameter -Werror -ggdb ")
-add_definitions(-D_GNU_SOURCES)
+add_definitions(-D_GNU_SOURCES -DNGX_DEBUG)
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src/core
@@ -84,8 +84,8 @@ set(SOURCE_FILES
         src/os/unix/ngx_linux_aio_read.c
         src/core/ngx_dso_module.c
         src/proc/ngx_proc.c
-#        src/event/ngx_event_openssl.c
-#        src/event/ngx_event_openssl_stapling.c
+        src/event/ngx_event_openssl.c
+        src/event/ngx_event_openssl_stapling.c
         src/core/ngx_regex.c
         src/http/ngx_http.c
         src/http/ngx_http_core_module.c
@@ -136,7 +136,7 @@ set(SOURCE_FILES
         src/http/modules/ngx_http_split_clients_module.c
         src/http/modules/ngx_http_referer_module.c
         src/http/modules/ngx_http_rewrite_module.c
-#        src/http/modules/ngx_http_ssl_module.c
+        src/http/modules/ngx_http_ssl_module.c
         src/http/modules/ngx_http_proxy_module.c
         src/http/modules/ngx_http_fastcgi_module.c
         src/http/modules/ngx_http_uwsgi_module.c
@@ -155,10 +155,10 @@ set(SOURCE_FILES
         src/http/modules/ngx_http_upstream_dynamic_module.c
         src/http/modules/ngx_http_stub_status_module.c
 
-        objs/ngx_modules.c
+        objs/ngx_modules.c objs/ngx_auto_config.h objs/ngx_auto_headers.h
         )
 
 add_executable(nginx ${SOURCE_FILES})
-target_link_libraries(nginx pthread dl crypt pcre #[[ssl]] crypto z jemalloc)
+target_link_libraries(nginx pthread dl crypt pcre ssl crypto z jemalloc)
 set_target_properties(nginx PROPERTIES LINKER_LANGUAGE "C")
 set_target_properties(nginx PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")

@@ -3,7 +3,7 @@ project(redis_git)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/objs)
 
-set(CMAKE_C_FLAGS "-std=gnu99 -pedantic -DREDIS_STATIC=''")
+set(CMAKE_C_FLAGS "-std=gnu99 -pedantic -DREDIS_STATIC='' -DUSE_JEMALLOC")
 ##add_definitions(-D_GNU_SOURCE -D_REENTRANT)
 
 include_directories(
@@ -11,18 +11,19 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/lua/src
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/hiredis
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/linenoise
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/jemalloc/include
 )
 
+link_directories(deps/jemalloc/lib)
 
-## 编译 lua
+## 编译子模块 lua
 ADD_SUBDIRECTORY(deps/lua)
 
 set(REDIS_CLI_SRC
         src/anet.c src/adlist.c src/redis-cli.c
         src/zmalloc.c src/release.c src/anet.c src/ae.c src/crc64.c
         deps/linenoise/linenoise.c
-        deps/hiredis/sds.c deps/hiredis/hiredis.c deps/hiredis/read.c
-        deps/hiredis/net.c
+        deps/hiredis/sds.c deps/hiredis/hiredis.c deps/hiredis/read.c deps/hiredis/net.c
         )
 
 set(REDIS_SVR_SRC
@@ -71,7 +72,6 @@ set(REDIS_SVR_SRC
         src/memtest.c
         src/crc64.c
         src/bitops.c
-        src/sentinel.c
         src/notify.c
         src/setproctitle.c
         src/blocked.c
@@ -91,18 +91,22 @@ set(REDIS_SVR_SRC
         src/defrag.c
         src/siphash.c
         src/rax.c
-        deps/hiredis/async.c
-        deps/hiredis/hiredis.c
-        deps/hiredis/net.c
-        deps/hiredis/read.c
+#--------------------------
+# build sentinel 代码
+src/sentinel.c
+deps/hiredis/async.c
+deps/hiredis/hiredis.c
+deps/hiredis/net.c
+deps/hiredis/read.c
+#--------------------------
         )
 
 add_executable(redis-server ${REDIS_SVR_SRC})
-target_link_libraries(redis-server dl m pthread libjemalloc.a lua_static)
+target_link_libraries(redis-server dl m jemalloc pthread lua_static)
 set_target_properties(redis-server PROPERTIES LINKER_LANGUAGE "C")
 set_target_properties(redis-server PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
 
 add_executable(redis-cli ${REDIS_CLI_SRC})
-target_link_libraries(redis-cli dl m pthread libjemalloc.a)
+target_link_libraries(redis-cli dl m jemalloc pthread)
 set_target_properties(redis-cli PROPERTIES LINKER_LANGUAGE "C")
 set_target_properties(redis-cli PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
